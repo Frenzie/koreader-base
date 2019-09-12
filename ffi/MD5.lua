@@ -146,7 +146,8 @@ local function MD5Update(ctx, buf, len)
     t = band(rshift(t, 3), 0x3f)
 
     if (t > 0) then
-        local p = ffi.cast("unsigned char *", ctx.input + t)
+        local input = to_number(ctx.input)
+        local p = ffi.cast("unsigned char *", input + t)
 
         t = 64 - t
         if (len < t) then
@@ -155,21 +156,21 @@ local function MD5Update(ctx, buf, len)
         end
 
         copy(p, buf, t)
-        byteReverse(ctx.input, 16)
-        MD5Transform(ctx.buf, ffi.cast("uint32_t *", ctx.input))
+        byteReverse(input, 16)
+        MD5Transform(ctx.buf, ffi.cast("uint32_t *", input))
         buf = buf + t
         len = len - t
     end
 
     while (len >= 64) do
-        copy(ctx.input, buf, 64)
-        byteReverse(ctx.input, 16)
-        MD5Transform(ctx.buf, ffi.cast("uint32_t *", ctx.input))
+        copy(input, buf, 64)
+        byteReverse(input, 16)
+        MD5Transform(ctx.buf, ffi.cast("uint32_t *", input))
         buf = buf + 64
         len = len - 64
     end
 
-    copy(ctx.input, buf, len)
+    copy(input, buf, len)
 end
 
 local function MD5Final(digest, ctx)
@@ -179,26 +180,27 @@ local function MD5Final(digest, ctx)
 
     count = band(rshift(ctx.bits[0], 3), 0x3F)
 
-    p = ctx.input + count
+    local input = to_number(ctx.input)
+    p = input + count
     p[0] = 0x80
     p = p + 1
     count = 64 - 1 - count
 
     if (count < 8) then
         fill(p, count, 0)
-        byteReverse(ctx.input, 16)
-        MD5Transform(ctx.buf, ffi.cast("uint32_t *", ctx.input))
-        fill(ctx.input, 56, 0)
+        byteReverse(input, 16)
+        MD5Transform(ctx.buf, ffi.cast("uint32_t *", input))
+        fill(input, 56, 0)
     else
         fill(p, count - 8, 0)
     end
 
-    byteReverse(ctx.input, 14)
+    byteReverse(input, 14)
 
-    ffi.cast("uint32_t *", ctx.input)[14] = ctx.bits[0]
-    ffi.cast("uint32_t *", ctx.input)[15] = ctx.bits[1]
+    ffi.cast("uint32_t *", input)[14] = ctx.bits[0]
+    ffi.cast("uint32_t *", input)[15] = ctx.bits[1]
 
-    MD5Transform(ctx.buf, ffi.cast("uint32_t *", ctx.input))
+    MD5Transform(ctx.buf, ffi.cast("uint32_t *", input))
     byteReverse(ffi.cast("unsigned char *",ctx.buf), 4)
     copy(digest, ctx.buf, 16)
     fill(ffi.cast("char *", ctx), ffi.sizeof(ctx), 0)
