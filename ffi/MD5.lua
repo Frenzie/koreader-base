@@ -133,6 +133,7 @@ local function MD5Transform(buf, input)
 end
 
 local function MD5Update(ctx, buf, len)
+    local input = tonumber(ctx.input)
     local t
 
     t = ctx.bits[0]
@@ -146,7 +147,6 @@ local function MD5Update(ctx, buf, len)
     t = band(rshift(t, 3), 0x3f)
 
     if (t > 0) then
-        local input = to_number(ctx.input)
         local p = ffi.cast("unsigned char *", input + t)
 
         t = 64 - t
@@ -174,13 +174,13 @@ local function MD5Update(ctx, buf, len)
 end
 
 local function MD5Final(digest, ctx)
+    local input = tonumber(ctx.input)
 
     local count
     local p
 
     count = band(rshift(ctx.bits[0], 3), 0x3F)
 
-    local input = to_number(ctx.input)
     p = input + count
     p[0] = 0x80
     p = p + 1
