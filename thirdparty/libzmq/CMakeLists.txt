@@ -1,5 +1,4 @@
 list(APPEND PATCH_FILES
-    android.patch
     cmake_tweaks.patch
 )
 
@@ -33,11 +32,11 @@ list(APPEND BUILD_CMD COMMAND ninja)
 
 list(APPEND INSTALL_CMD COMMAND ${CMAKE_COMMAND} --install .)
 
-append_shared_lib_install_commands(INSTALL_CMD zmq VERSION 4)
+append_shared_lib_install_commands(INSTALL_CMD zmq VERSION 5)
 
 external_project(
-    DOWNLOAD GIT 883e95b22e0bffffa72312ea1fec76199afbe458
-    https://github.com/zeromq/libzmq
+    DOWNLOAD URL ae933b1e98411fd7cb8309f9502d2737
+    https://github.com/zeromq/libzmq/releases/download/v4.3.5/zeromq-4.3.5.tar.gz
     PATCH_FILES ${PATCH_FILES}
     CMAKE_ARGS ${CMAKE_ARGS}
     BUILD_COMMAND ${BUILD_CMD}
